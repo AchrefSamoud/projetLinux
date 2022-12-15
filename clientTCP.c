@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-
+/*define a buffer with a 1024 bit */
 #define buffersize 1024
 
 int main(int argc, char *argv[]){
