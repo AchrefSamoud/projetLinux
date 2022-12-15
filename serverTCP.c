@@ -22,6 +22,7 @@ int main(){
     struct timeval timeout;
     timeout.tv_sec = 5; // sec
     timeout.tv_usec = 0; // ms
+    int i;
 
 
     int serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -56,6 +57,25 @@ int main(){
         recv(clnt_sock, buffer, buffersize, 0) ;
         printf("Server receive:%s\n", buffer) ;
         int total = (int)(atoi(buffer)*atoi(buffer)) ;
+        FILE *fp;
+        char res[100];
+        char int_str[100];
+        sprintf(int_str,"%d",total);
+        char str[] = "Server return num^2:";
+        strcat(str,int_str);
+        strcat(str,"\n");
+        fp = fopen("result_TCP.txt","w");
+           int i=0;
+           while(1){
+          if (str[i]=='\n') break;
+          else{
+            fputc(str[i],fp);
+            i++;
+          } 
+        
+        }
+       
+        fclose(fp);
         printf("Server return num^2:%d\n", total) ;
         char *returnvalue = (char*) calloc(buffersize, sizeof(char));
         sprintf( returnvalue, "result:%d", total ) ;
