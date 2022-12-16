@@ -1,4 +1,4 @@
-import tkinter as tk
+import tkinter
 from multiprocessing import Process
 import sys
 import customtkinter
@@ -13,7 +13,6 @@ try:
 except ModuleNotFoundError:  # Python 3
     import _thread as thread
 import time
-from io import StringIO
 class PrintLogger(object):  # create file like object
 
     def __init__(self, textbox):  # pass reference to text widget
@@ -81,7 +80,7 @@ class App(customtkinter.CTk):
         self.home_frame_button_2.grid(row=2, column=0, padx=25, pady=12)
         self.home_frame_button_3 = customtkinter.CTkButton(self.home_frame, text="Quit", compound="top",command=self.close)
         self.home_frame_button_3.grid(row=3, column=0, padx=20, pady=10)
-        self.home_frame_button_4= customtkinter.CTkButton(self, text="Create Toplevel", command=self.create_toplevel)
+        self.home_frame_button_4 = customtkinter.CTkButton(self.home_frame, text="Redirect console to widget", command=self.redirect_logging)
         self.home_frame_button_4.grid(row=4, column=0, padx=20, pady=10)
 
         # create second frame
@@ -106,26 +105,11 @@ class App(customtkinter.CTk):
             print ('\n end clientTube')
         #Execute server and client in parellel:
         ray.get([serverTube.remote(),clientTube.remote()])
-        
-    def create_toplevel(self):
-        window = customtkinter.CTkToplevel(self)
-        window.geometry("400x200")
-
-        # create label on CTkToplevel window
-        label = customtkinter.CTkLabel(window, text="Console Result")
-        label.pack(side="top", fill="both", expand=True, padx=40, pady=40)
-        textbox = customtkinter.CTkTextbox(app)
-        textbox.grid(row=0, column=0)
-        filename="result_TCP.txt"
-        try:
-            if filename:
-                the_file = open(filename)
-                textbox.insert(tk.END, the_file.read())
-            elif not filename:
-                messagebox.showinfo("Cancel", "You clicked Cancel")
-        except IOError:
-            messagebox.showinfo("Error", "Could not open file")
- 
+    def redirect_logging(self):
+        self.log_widget.pack()
+        logger = PrintLogger(self.log_widget)
+        sys.stdout = logger
+        sys.stderr = logger
     def runProg2(self):
         @ray.remote
         def serverTCP():
@@ -166,47 +150,9 @@ class App(customtkinter.CTk):
         self.select_frame_by_name("home")
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
-class Display(tk.Frame):
-    def __init__(self,parent=0):
-       tk.Frame.__init__(self,parent)
-       self.input = tk.Text(self, width=100, height=15)
-       self.input.pack()
-       self.doIt = tk.Button(self,text="URL to Hash", command=self.onEnter)
-       self.doIt.pack()
-       self.output = tk.Text(self, width=100, height=15)
-       self.output.pack()
-       sys.stdout = self
-       self.pack()
 
-    def onEnter(self):
-        text_input = self.input.get(1.0,tk.END)
-        product_url_list = text_input.split('\n')
-        url_list_to_hash(product_url_list)
-
-### I used the code below to somewhat successfully call the functions from another script
-### but it did not solve my issue though.
-        # p = subprocess.Popen(['python', './image_url_to_hash.py', self.input.get(1.0,"end-1c")],
-        #              stdout=subprocess.PIPE,
-        #              stderr=subprocess.STDOUT,
-        #              )
-        # for line in iter(p.stdout.readline, ''):
-        #     print line
-
-    def write(self, txt):
-        self.output.insert(tk.END,str(txt))
-#######This is the missing line!!!!:
-        self.update_idletasks()
-
-    def input_to_hash(text_input):
-        product_url_list = text_input.split('\n')
-        ### This is just some dummy code to simulate the output.
-        ### There is a delay is processing each url, but I would like to capture output as it's running
-        for link in product_url_list:
-            time.sleep(1)
-            print (link)
 
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-    Display().mainloop()
 

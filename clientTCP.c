@@ -25,6 +25,23 @@ int main(int argc, char *argv[]){
     char *buffer = (char*) calloc(buffersize, sizeof(char)) ;
     read(sock, buffer, buffersize);
     printf("result form server: %s\n", buffer);
+       FILE *fp;
+        char res[100];
+        char str[] = "result form server: ";
+        strcat(str,buffer);
+        strcat(str,"\n");
+        fp = fopen("Client_TCP.txt","w");
+           int i=0;
+           while(1){
+          if (str[i]=='\n') break;
+          else{
+            fputc(str[i],fp);
+            i++;
+          } 
+        
+        }
+       
+        fclose(fp);
 
     free(message);
     free(buffer);

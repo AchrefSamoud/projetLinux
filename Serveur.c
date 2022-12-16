@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 
 void hand_reveil(int sig)
 {
@@ -98,25 +99,53 @@ int main ()
 		read(mk1,&request,sizeof(question));
 		printf("\n 	PID of Client -------------->  %d \n",request.cpid);
 		printf("\n 	Choosing Number ------------>  %d \n",request.number);
-		
-		/*		Traitement of Result		*/
+
+		FILE *fp;
+        char res[100];
+        char int_str[100];
+        sprintf(int_str,"%d",request.number);
+        char str[] = "Choosed Number: ";
+        strcat(str,int_str);
+        strcat(str,"\n");
+        /*		Traitement of Result		*/
 		response.spid=getpid();
 		printf("\n 	PID of Server -------------->  %d \n",response.spid);
 		printf("\n 	Random Number generated --------------> \t");
 		for (int i=0;i<request.number;i++)
 		{
+
 			response.result[i]=rand() % 1000;
 			printf("%d\t",response.result[i]);
+			sprintf(int_str,"%d",response.result[i]);
+            strcat(str,int_str);
+            strcat(str,"\n");
+			
 		}
-		printf("\n");
-		
+			
 		/*Envoi de la réponse*/
 		write(mk2,&response,sizeof(reponse));
 		printf("\n----------	All Sent ! ^_^	 ----------\n");
 		
+		printf("\n");
+		strcat(str,"\t");
+        fp = fopen("server.txt","w");
+           int i=0;
+           while(1){
+          if (str[i]=='\t') break;
+          else{
+            fputc(str[i],fp);
+            i++;
+          } 
+        
+        }
+       
+        fclose(fp);
+	
 		/*		Send SIGUSR1 signal		*/
 		sleep(1);
 		kill(request.cpid,SIGUSR1);
+        
+		
 	
 	}
 	/*		Closing of Named pipes	*/
